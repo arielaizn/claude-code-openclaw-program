@@ -1,0 +1,1502 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ליווי Claude Code + OpenClaw | המדריך המלא</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
+
+  :root {
+    --bg: #070b12;
+    --surface: #0d1420;
+    --surface2: #111927;
+    --border: #1e2f44;
+    --accent-blue: #00d4ff;
+    --accent-green: #00ff88;
+    --accent-orange: #ff6b35;
+    --accent-purple: #a855f7;
+    --text: #c8d8e8;
+    --text-dim: #6a8aaa;
+    --text-bright: #e8f4ff;
+    --glow-blue: 0 0 30px rgba(0,212,255,0.25);
+    --glow-green: 0 0 30px rgba(0,255,136,0.2);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Heebo', sans-serif;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* Animated background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Hero */
+  .hero {
+    padding: 80px 0 60px;
+    text-align: center;
+    position: relative;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 400px;
+    background: radial-gradient(ellipse, rgba(0,212,255,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .badge {
+    display: inline-block;
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.3);
+    color: var(--accent-blue);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 6px 18px;
+    border-radius: 100px;
+    margin-bottom: 28px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .hero h1 {
+    font-size: clamp(36px, 6vw, 64px);
+    font-weight: 900;
+    line-height: 1.1;
+    color: var(--text-bright);
+    margin-bottom: 20px;
+  }
+
+  .hero h1 span {
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-sub {
+    font-size: 20px;
+    color: var(--text-dim);
+    max-width: 600px;
+    margin: 0 auto 40px;
+    font-weight: 300;
+  }
+
+  .hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 48px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 36px;
+    font-weight: 900;
+    color: var(--accent-blue);
+    font-family: 'JetBrains Mono', monospace;
+    display: block;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* Divider */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 60px 0;
+  }
+
+  /* Section */
+  .section {
+    margin-bottom: 80px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .section-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  .icon-blue { background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.2); }
+  .icon-green { background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.2); }
+  .icon-orange { background: rgba(255,107,53,0.1); border: 1px solid rgba(255,107,53,0.2); }
+  .icon-purple { background: rgba(168,85,247,0.1); border: 1px solid rgba(168,85,247,0.2); }
+
+  .section-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--text-bright);
+  }
+
+  .section-title small {
+    display: block;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-dim);
+    margin-top: 2px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 1px;
+  }
+
+  /* Cards grid */
+  .cards {
+    display: grid;
+    gap: 16px;
+  }
+
+  .cards-2 { grid-template-columns: 1fr 1fr; }
+  .cards-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  @media (max-width: 680px) {
+    .cards-2, .cards-3 { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    transition: border-color 0.2s, transform 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top right, rgba(0,212,255,0.04), transparent 70%);
+    pointer-events: none;
+  }
+
+  .card:hover {
+    border-color: rgba(0,212,255,0.3);
+    transform: translateY(-2px);
+  }
+
+  .card.green::before {
+    background: radial-gradient(circle at top right, rgba(0,255,136,0.05), transparent 70%);
+  }
+  .card.green:hover { border-color: rgba(0,255,136,0.3); }
+
+  .card.orange::before {
+    background: radial-gradient(circle at top right, rgba(255,107,53,0.05), transparent 70%);
+  }
+  .card.orange:hover { border-color: rgba(255,107,53,0.3); }
+
+  .card.purple::before {
+    background: radial-gradient(circle at top right, rgba(168,85,247,0.05), transparent 70%);
+  }
+  .card.purple:hover { border-color: rgba(168,85,247,0.3); }
+
+  .card-icon {
+    font-size: 28px;
+    margin-bottom: 14px;
+    display: block;
+  }
+
+  .card-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-bright);
+    margin-bottom: 8px;
+  }
+
+  .card-body {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  .card-tag {
+    display: inline-block;
+    background: rgba(0,212,255,0.1);
+    color: var(--accent-blue);
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 12px;
+    font-weight: 700;
+  }
+
+  .card-tag.green { background: rgba(0,255,136,0.1); color: var(--accent-green); }
+  .card-tag.orange { background: rgba(255,107,53,0.1); color: var(--accent-orange); }
+  .card-tag.purple { background: rgba(168,85,247,0.1); color: var(--accent-purple); }
+
+  /* Comparison table */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+  }
+
+  .compare-table th {
+    background: rgba(0,212,255,0.07);
+    color: var(--accent-blue);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 14px 18px;
+    text-align: right;
+    border-bottom: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.5px;
+  }
+
+  .compare-table td {
+    padding: 14px 18px;
+    font-size: 14px;
+    border-bottom: 1px solid rgba(30,47,68,0.5);
+    color: var(--text);
+    vertical-align: top;
+  }
+
+  .compare-table tr:last-child td { border-bottom: none; }
+
+  .compare-table tr:hover td { background: rgba(0,212,255,0.03); }
+
+  .compare-table .row-label {
+    font-weight: 700;
+    color: var(--text-bright);
+    font-size: 15px;
+    white-space: nowrap;
+  }
+
+  .check { color: var(--accent-green); font-size: 16px; }
+  .cross { color: #ef4444; font-size: 16px; }
+  .partial { color: var(--accent-orange); font-size: 16px; }
+
+  /* Steps */
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .step {
+    display: flex;
+    gap: 20px;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+
+  .step:last-child { border-bottom: none; }
+
+  .step-num {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.25);
+    color: var(--accent-blue);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .step.green .step-num {
+    background: rgba(0,255,136,0.1);
+    border-color: rgba(0,255,136,0.25);
+    color: var(--accent-green);
+  }
+
+  .step.orange .step-num {
+    background: rgba(255,107,53,0.1);
+    border-color: rgba(255,107,53,0.25);
+    color: var(--accent-orange);
+  }
+
+  .step.purple .step-num {
+    background: rgba(168,85,247,0.1);
+    border-color: rgba(168,85,247,0.25);
+    color: var(--accent-purple);
+  }
+
+  .step-content { flex: 1; }
+
+  .step-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-bright);
+    margin-bottom: 6px;
+  }
+
+  .step-body {
+    font-size: 14px;
+    color: var(--text-dim);
+  }
+
+  /* Code block */
+  .code-block {
+    background: #060a0f;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--accent-green);
+    overflow-x: auto;
+    margin: 12px 0;
+    position: relative;
+  }
+
+  .code-block .prompt { color: var(--accent-blue); }
+  .code-block .comment { color: var(--text-dim); }
+
+  /* Info box */
+  .info-box {
+    background: rgba(0,212,255,0.05);
+    border: 1px solid rgba(0,212,255,0.15);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin: 20px 0;
+    display: flex;
+    gap: 14px;
+  }
+
+  .info-box.warn {
+    background: rgba(255,107,53,0.05);
+    border-color: rgba(255,107,53,0.2);
+  }
+
+  .info-box.success {
+    background: rgba(0,255,136,0.05);
+    border-color: rgba(0,255,136,0.15);
+  }
+
+  .info-box-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+
+  .info-box-content { font-size: 14px; }
+
+  .info-box-content strong {
+    display: block;
+    color: var(--text-bright);
+    margin-bottom: 4px;
+    font-weight: 700;
+  }
+
+  /* Module block */
+  .module {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+
+  .module-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .module-num {
+    background: rgba(0,212,255,0.1);
+    color: var(--accent-blue);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+
+  .module-num.green { background: rgba(0,255,136,0.1); color: var(--accent-green); }
+  .module-num.orange { background: rgba(255,107,53,0.1); color: var(--accent-orange); }
+  .module-num.purple { background: rgba(168,85,247,0.1); color: var(--accent-purple); }
+
+  .module-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-bright);
+  }
+
+  .module-body {
+    padding: 20px 24px;
+  }
+
+  .topic-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .topic-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--text);
+  }
+
+  .topic-list li::before {
+    content: '›';
+    color: var(--accent-blue);
+    font-size: 18px;
+    line-height: 1.3;
+    flex-shrink: 0;
+  }
+
+  /* Big comparison */
+  .platform-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-top: 8px;
+  }
+
+  @media (max-width: 700px) { .platform-cards { grid-template-columns: 1fr; } }
+
+  .platform-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 20px;
+    text-align: center;
+    transition: all 0.2s;
+  }
+
+  .platform-card.featured {
+    border-color: rgba(0,212,255,0.4);
+    background: rgba(0,212,255,0.04);
+    box-shadow: 0 0 40px rgba(0,212,255,0.1);
+  }
+
+  .platform-card .emoji { font-size: 36px; display: block; margin-bottom: 14px; }
+  .platform-name { font-size: 17px; font-weight: 800; color: var(--text-bright); margin-bottom: 6px; }
+  .platform-tagline { font-size: 12px; color: var(--accent-blue); font-family: 'JetBrains Mono', monospace; margin-bottom: 16px; }
+  .platform-desc { font-size: 13px; color: var(--text-dim); line-height: 1.6; margin-bottom: 16px; }
+
+  .platform-pros {
+    list-style: none;
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .platform-pros li {
+    font-size: 12px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .platform-pros li span { color: var(--accent-green); }
+
+  .featured-badge {
+    display: inline-block;
+    background: var(--accent-blue);
+    color: #000;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 100px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Highlight */
+  .highlight {
+    background: linear-gradient(135deg, rgba(0,212,255,0.06), rgba(0,255,136,0.04));
+    border: 1px solid rgba(0,212,255,0.15);
+    border-radius: 20px;
+    padding: 36px;
+    margin: 48px 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .highlight::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(0,212,255,0.1), transparent 70%);
+  }
+
+  .highlight h2 {
+    font-size: 26px;
+    font-weight: 900;
+    color: var(--text-bright);
+    margin-bottom: 10px;
+  }
+
+  .highlight p {
+    font-size: 16px;
+    color: var(--text-dim);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  /* Skill anatomy */
+  .skill-anatomy {
+    background: #060a0f;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  .sa-folder { color: var(--accent-blue); }
+  .sa-file { color: var(--accent-green); }
+  .sa-comment { color: var(--text-dim); }
+  .sa-indent { padding-right: 24px; }
+  .sa-line { margin: 4px 0; }
+
+  /* Footer */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 48px 0;
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 13px;
+  }
+
+  footer .logo {
+    font-size: 24px;
+    font-weight: 900;
+    color: var(--text-bright);
+    margin-bottom: 10px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Phase blocks */
+  .phase-block {
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .phase-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .phase-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent-blue);
+  }
+
+  .phase-label.green { color: var(--accent-green); }
+  .phase-label.orange { color: var(--accent-orange); }
+  .phase-label.purple { color: var(--accent-purple); }
+
+  .phase-title-big {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-bright);
+  }
+
+  .phase-body { padding: 24px; }
+
+  /* pill tags */
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .pill {
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.15);
+    color: var(--accent-blue);
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+  }
+  .pill.green { background: rgba(0,255,136,0.08); border-color: rgba(0,255,136,0.15); color: var(--accent-green); }
+  .pill.orange { background: rgba(255,107,53,0.08); border-color: rgba(255,107,53,0.15); color: var(--accent-orange); }
+
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="container">
+    <div class="badge">// ONBOARDING GUIDE v2.0</div>
+    <h1>ליווי <span>Claude Code + OpenClaw</span></h1>
+    <p class="hero-sub">כל מה שצריך לדעת לפני הזום הראשון — מהתקנה עד בנייה מלאה של מערכות AI לעסק</p>
+    <div class="hero-stats">
+      <div class="stat">
+        <span class="stat-num">2</span>
+        <span class="stat-label">כלים מרכזיים</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">3</span>
+        <span class="stat-label">פלטפורמות Claude</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">∞</span>
+        <span class="stat-label">אפשרויות אוטומציה</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <hr class="divider">
+
+  <!-- PART 1: OVERVIEW -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-blue">🗺️</div>
+      <div class="section-title">
+        מה תוציא מהליווי הזה?
+        <small>// PROGRAM OVERVIEW</small>
+      </div>
+    </div>
+
+    <div class="cards cards-2">
+      <div class="card">
+        <span class="card-icon">⚡</span>
+        <div class="card-title">Claude Code לעומק</div>
+        <div class="card-body">מהתקנה ועד בניית skills מותאמים אישית, sub-agents, ואוטומציות מלאות — Claude Code יהפוך לעוזר הדיגיטלי שלך שעובד 24/7.</div>
+        <div class="card-tag">Claude Code</div>
+      </div>
+      <div class="card green">
+        <span class="card-icon">🦞</span>
+        <div class="card-title">OpenClaw מ-WhatsApp</div>
+        <div class="card-body">הקמת עוזר AI אישי שמגיב ב-WhatsApp, מריץ אוטומציות, מחובר ל-skills שיצרת — הכול מ-VPS פרטי שבשליטה שלך.</div>
+        <div class="card-tag green">OpenClaw</div>
+      </div>
+      <div class="card orange">
+        <span class="card-icon">🏗️</span>
+        <div class="card-title">בניית מערכות ואתרים</div>
+        <div class="card-body">קומבינציה של Claude Code + Antigravity לבנייה מהירה של דפי נחיתה, מערכות CRM, כלי אוטומציה — בלי מפתח.</div>
+        <div class="card-tag orange">Antigravity</div>
+      </div>
+      <div class="card purple">
+        <span class="card-icon">🎯</span>
+        <div class="card-title">ייעול ספציפי לעסק שלך</div>
+        <div class="card-body">תוכנית לימודים אישית — מזהים את 3-5 המקומות שבהם AI יחסוך לך הכי הרבה זמן וכסף, ובונים שם קודם.</div>
+        <div class="card-tag purple">Personal</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- PART 2: THREE WAYS TO USE CLAUDE CODE -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-blue">🔀</div>
+      <div class="section-title">
+        3 הדרכים להשתמש ב-Claude Code
+        <small>// PLATFORMS COMPARISON</small>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <div class="info-box-icon">💡</div>
+      <div class="info-box-content">
+        <strong>לפני שמתחילים</strong>
+        Claude Code הוא לא "צ'אט" — זה סוכן AI שמריץ פקודות אמיתיות במחשב שלך. הוא קורא קבצים, כותב קוד, מבצע בדיקות ומפרסם אתרים. זה למה הוא כל-כך עוצמתי.
+      </div>
+    </div>
+
+    <div class="platform-cards">
+
+      <div class="platform-card">
+        <span class="emoji">🖥️</span>
+        <div class="platform-name">Terminal</div>
+        <div class="platform-tagline">// CLI</div>
+        <div class="platform-desc">הצורה הבסיסית והחזקה ביותר. מריצים <code>claude</code> בטרמינל ומדברים עם הסוכן ישירות.</div>
+        <ul class="platform-pros">
+          <li><span>✓</span> גישה מלאה לכל יכולות</li>
+          <li><span>✓</span> מהיר ויעיל</li>
+          <li><span>✓</span> אידיאלי לאוטומציות</li>
+          <li><span>✓</span> שולט על הכל</li>
+        </ul>
+        <div class="pills">
+          <div class="pill">bash</div>
+          <div class="pill">zsh</div>
+          <div class="pill">PowerShell</div>
+        </div>
+      </div>
+
+      <div class="platform-card featured">
+        <div class="featured-badge">הכי פופולרי</div>
+        <span class="emoji">🧩</span>
+        <div class="platform-name">IDE Extension</div>
+        <div class="platform-tagline">// VS Code / Antigravity</div>
+        <div class="platform-desc">Claude Code כתוסף בתוך סביבת הפיתוח. רואים את הקוד ואת ה-AI בו-זמנית — חוויה ויזואלית מעולה.</div>
+        <ul class="platform-pros">
+          <li><span>✓</span> ממשק ויזואלי</li>
+          <li><span>✓</span> עריכה inline</li>
+          <li><span>✓</span> אידיאלי למתחילים</li>
+          <li><span>✓</span> משתלב עם Antigravity</li>
+        </ul>
+        <div class="pills">
+          <div class="pill">VS Code</div>
+          <div class="pill green">Antigravity</div>
+          <div class="pill">JetBrains</div>
+        </div>
+      </div>
+
+      <div class="platform-card">
+        <span class="emoji">💬</span>
+        <div class="platform-name">Claude Desktop</div>
+        <div class="platform-tagline">// Cowork App</div>
+        <div class="platform-desc">אפליקציית דסקטופ של Anthropic — מחובר לקבצים ותיקיות במחשב. פשוט יותר, מושלם לטאסקים ספציפיים.</div>
+        <ul class="platform-pros">
+          <li><span>✓</span> הכי קל לשימוש</li>
+          <li><span>✓</span> מחובר לקבצים</li>
+          <li><span>✓</span> ממשק נקי</li>
+          <li><span>✓</span> אידיאלי לבעלי עסקים</li>
+        </ul>
+        <div class="pills">
+          <div class="pill">macOS</div>
+          <div class="pill">Windows</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Detailed comparison table -->
+    <div style="margin-top: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden;">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>יכולת</th>
+            <th>Terminal</th>
+            <th>IDE Extension</th>
+            <th>Desktop App</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="row-label">גישה ל-skills</td>
+            <td><span class="check">✓ מלאה</span></td>
+            <td><span class="check">✓ מלאה</span></td>
+            <td><span class="partial">⚡ חלקית</span></td>
+          </tr>
+          <tr>
+            <td class="row-label">בניית sub-agents</td>
+            <td><span class="check">✓</span></td>
+            <td><span class="check">✓</span></td>
+            <td><span class="cross">✗</span></td>
+          </tr>
+          <tr>
+            <td class="row-label">ריצת קוד אוטומטית</td>
+            <td><span class="check">✓</span></td>
+            <td><span class="check">✓</span></td>
+            <td><span class="partial">⚡ מוגבל</span></td>
+          </tr>
+          <tr>
+            <td class="row-label">ממשק ויזואלי</td>
+            <td><span class="cross">✗</span></td>
+            <td><span class="check">✓</span></td>
+            <td><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td class="row-label">חיבור ל-Antigravity</td>
+            <td><span class="partial">⚡ חיצוני</span></td>
+            <td><span class="check">✓ מובנה</span></td>
+            <td><span class="cross">✗</span></td>
+          </tr>
+          <tr>
+            <td class="row-label">אידיאלי ל…</td>
+            <td>אוטומציות, scripts</td>
+            <td>פרויקטים, בנייה</td>
+            <td>מטלות יומיומיות</td>
+          </tr>
+          <tr>
+            <td class="row-label">עקומת למידה</td>
+            <td>בינוני</td>
+            <td>נמוך-בינוני</td>
+            <td>נמוך מאוד</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- PART 3: CLAUDE CODE CURRICULUM -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-blue">📚</div>
+      <div class="section-title">
+        Claude Code — תוכנית הלימודים
+        <small>// FROM ZERO TO HERO</small>
+      </div>
+    </div>
+
+    <!-- Phase 1 -->
+    <div class="phase-block">
+      <div class="phase-header">
+        <div>
+          <div class="phase-label">// PHASE 01</div>
+          <div class="phase-title-big">🚀 התקנה וסביבת עבודה</div>
+        </div>
+        <div class="card-tag">שיעור 1-2</div>
+      </div>
+      <div class="phase-body">
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <div class="step-title">הכנת הסביבה</div>
+              <div class="step-body">התקנת Node.js, npm, ואימות שהכל עובד. מה ההבדל בין כל מערכת הפעלה.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <div class="step-title">התקנת Claude Code</div>
+              <div class="step-body">הרצת <code>npm install -g @anthropic-ai/claude-code</code>. חיבור לחשבון Claude — Premium vs API, מה עדיף לך.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <div class="step-title">הפרויקט הראשון</div>
+              <div class="step-body">מריצים claude בטרמינל, יוצרים תיקייה לעסק, ומבינים איך לדבר עם הסוכן בצורה נכונה (CLAUDE.md).</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-content">
+              <div class="step-title">חיבור לאנטיגרביטי (Antigravity)</div>
+              <div class="step-body">הורדת Antigravity, התקנת תוסף Claude Code, ואיך משתמשים בהם ביחד — Gemini לתכנון, Claude לביצוע.</div>
+            </div>
+          </div>
+        </div>
+        <div class="code-block">
+<span class="comment"># התקנת Claude Code</span>
+npm install -g @anthropic-ai/claude-code
+
+<span class="comment"># חיבור לחשבון</span>
+claude <span class="comment"># → ייפתח browser לאימות</span>
+
+<span class="comment"># הרצה ראשונה</span>
+mkdir my-business && cd my-business
+claude "תעזור לי לבנות מערכת ניהול לקוחות"
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 2 -->
+    <div class="phase-block">
+      <div class="phase-header">
+        <div>
+          <div class="phase-label green">// PHASE 02</div>
+          <div class="phase-title-big">🧠 Skills — הכלי הכי עוצמתי</div>
+        </div>
+        <div class="card-tag green">שיעור 3-5</div>
+      </div>
+      <div class="phase-body">
+
+        <p style="font-size: 14px; color: var(--text-dim); margin-bottom: 20px;">
+          Skills הם "מוחות מיוחדים" שאתה נותן ל-Claude Code — קבצי הוראות שמלמדים אותו לעשות משהו ספציפי בצורה מושלמת. ניצור skills לעסק שלך.
+        </p>
+
+        <div class="skill-anatomy">
+          <div class="sa-line"><span class="sa-folder">📁 my-business/</span></div>
+          <div class="sa-line sa-indent"><span class="sa-folder">📁 .claude/</span></div>
+          <div class="sa-line sa-indent sa-indent"><span class="sa-folder">📁 skills/</span></div>
+          <div class="sa-line sa-indent sa-indent sa-indent"><span class="sa-file">📄 customer-service.md</span> <span class="sa-comment">← skill לשירות לקוחות</span></div>
+          <div class="sa-line sa-indent sa-indent sa-indent"><span class="sa-file">📄 invoice-generator.md</span> <span class="sa-comment">← skill ליצירת חשבוניות</span></div>
+          <div class="sa-line sa-indent sa-indent sa-indent"><span class="sa-file">📄 social-media.md</span> <span class="sa-comment">← skill לתוכן שיווקי</span></div>
+          <div class="sa-line sa-indent"><span class="sa-file">📄 CLAUDE.md</span> <span class="sa-comment">← חוקי ה-AI לעסק שלך</span></div>
+        </div>
+
+        <div style="margin-top: 20px;">
+          <div class="cards cards-2">
+            <div class="card green">
+              <span class="card-icon">✍️</span>
+              <div class="card-title">Skills שנבנה ביחד</div>
+              <div class="card-body">skill לכתיבת הצעות מחיר, skill למענה ללקוחות, skill ליצירת תוכן ברשתות חברתיות — הכל בהתאם לעסק שלך.</div>
+            </div>
+            <div class="card green">
+              <span class="card-icon">📦</span>
+              <div class="card-title">ייבוא Skills קיימים</div>
+              <div class="card-body">יש אלפי skills מוכנים מהקהילה — נלמד איך למצוא, להתאים ולהשתמש ב-skills שכבר קיימים.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-box success" style="margin-top: 20px;">
+          <div class="info-box-icon">🎯</div>
+          <div class="info-box-content">
+            <strong>הסיבה ש-skills שווים כסף</strong>
+            skill טוב חוסך לך 20-30 דקות ביום. אם יצרנו 5 skills — זה שעתיים ביום שחזרות אליך. ×220 ימי עבודה = 440 שעות שנה.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 3 -->
+    <div class="phase-block">
+      <div class="phase-header">
+        <div>
+          <div class="phase-label orange">// PHASE 03</div>
+          <div class="phase-title-big">🤖 Sub-Agents — צוות AI שלם</div>
+        </div>
+        <div class="card-tag orange">שיעור 6-8</div>
+      </div>
+      <div class="phase-body">
+        <p style="font-size: 14px; color: var(--text-dim); margin-bottom: 20px;">
+          Sub-agent הוא Claude Code נפרד שמבצע משימות ספציפיות בשבילך. אתה יכול להפעיל 10 agents בו-זמנית — כל אחד עובד על משהו אחר.
+        </p>
+
+        <div class="cards cards-3">
+          <div class="card orange">
+            <span class="card-icon">📧</span>
+            <div class="card-title">Agent אימיילים</div>
+            <div class="card-body">קורא את תיבת הדואר, מסווג, מנסח תשובות ושולח — בעצמו.</div>
+          </div>
+          <div class="card orange">
+            <span class="card-icon">📊</span>
+            <div class="card-title">Agent דוחות</div>
+            <div class="card-body">מושך נתונים, יוצר דוח שבועי/חודשי ושולח לך ב-WhatsApp.</div>
+          </div>
+          <div class="card orange">
+            <span class="card-icon">📱</span>
+            <div class="card-title">Agent תוכן</div>
+            <div class="card-body">כותב פוסטים לאינסטגרם ולינקדאין, מתזמן פרסום — אוטומטי.</div>
+          </div>
+        </div>
+
+        <div class="code-block" style="margin-top: 20px;">
+<span class="comment"># דוגמה להפעלת 3 agents במקביל</span>
+claude --agent "analyze sales data for this week"
+claude --agent "write 5 instagram posts based on our products"
+claude --agent "draft replies to all unanswered emails"
+
+<span class="comment"># כולם רצים בו-זמנית!</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 4 -->
+    <div class="phase-block">
+      <div class="phase-header">
+        <div>
+          <div class="phase-label purple">// PHASE 04</div>
+          <div class="phase-title-big">🏗️ בניית מערכות ואתרים</div>
+        </div>
+        <div class="card-tag purple">שיעור 9-12</div>
+      </div>
+      <div class="phase-body">
+        <div class="cards cards-2">
+          <div class="card purple">
+            <span class="card-icon">🌐</span>
+            <div class="card-title">דפי נחיתה מלאים</div>
+            <div class="card-body">Claude Code כותב HTML/CSS/JS, Antigravity בודק ומריץ — ואז deploy ישיר ל-Netlify. הכל בפחות משעה.</div>
+          </div>
+          <div class="card purple">
+            <span class="card-icon">📋</span>
+            <div class="card-title">מערכות עסקיות</div>
+            <div class="card-body">ניהול לקוחות, מעקב הזמנות, מערכת תורים — Claude Code בונה, Supabase שומר נתונים.</div>
+          </div>
+          <div class="card purple">
+            <span class="card-icon">🔗</span>
+            <div class="card-title">אינטגרציות API</div>
+            <div class="card-body">חיבור ל-Google Sheets, Monday, Zapier, WhatsApp — כל מה שצריך לייעול העסק.</div>
+          </div>
+          <div class="card purple">
+            <span class="card-icon">🤝</span>
+            <div class="card-title">Claude Code + Antigravity</div>
+            <div class="card-body">Antigravity מתכנן את הארכיטקטורה, Claude Code מבצע — ה-workflow הכי מהיר ב-2026.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <hr class="divider">
+
+  <!-- PART 4: OPENCLAW -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-green">🦞</div>
+      <div class="section-title">
+        OpenClaw — ה-AI שלך ב-WhatsApp
+        <small>// VPS SETUP GUIDE</small>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <div class="info-box-icon">🦞</div>
+      <div class="info-box-content">
+        <strong>מה זה OpenClaw?</strong>
+        סוכן AI בקוד פתוח שרץ על שרת פרטי שלך — ומגיב לך ב-WhatsApp, Telegram, Discord. הוא מחובר ל-Claude, זוכר אותך, מריץ skills ו-agents, ועושה דברים בשבילך גם כשאתה ישן.
+      </div>
+    </div>
+
+    <div class="cards cards-2" style="margin-bottom: 24px;">
+      <div class="card green">
+        <span class="card-icon">🔒</span>
+        <div class="card-title">פרטיות מלאה</div>
+        <div class="card-body">הכל על השרת שלך. הנתונים לא עוברים לאף שרת חיצוני. שולט על כל דבר.</div>
+      </div>
+      <div class="card green">
+        <span class="card-icon">📲</span>
+        <div class="card-title">מ-WhatsApp בלבד</div>
+        <div class="card-body">שולחים הודעה ב-WhatsApp → OpenClaw מריץ → מגיב עם תוצאות. פשוט כמו לדבר עם עוזר.</div>
+      </div>
+    </div>
+
+    <!-- VPS Setup Steps -->
+    <div class="module">
+      <div class="module-header">
+        <div class="module-num green">STEP 1</div>
+        <div class="module-title">🖥️ רכישת שרת VPS</div>
+      </div>
+      <div class="module-body">
+        <div class="steps">
+          <div class="step green">
+            <div class="step-num green">A</div>
+            <div class="step-content">
+              <div class="step-title">איפה לקנות?</div>
+              <div class="step-body">DigitalOcean, Hetzner, Vultr, Linode — כולן עובדות. ל-OpenClaw צריך מינימום 2GB RAM. Hetzner הכי זולה (€4/חודש). DigitalOcean הכי ידידותית למתחילים ($12/חודש).</div>
+            </div>
+          </div>
+          <div class="step green">
+            <div class="step-num green">B</div>
+            <div class="step-content">
+              <div class="step-title">מה לבחור?</div>
+              <div class="step-body">Ubuntu 24.04 LTS (מומלץ). גיאוגרפיה: EU/US — לא משנה לתפקוד, קצת משנה לחוקי פרטיות.</div>
+            </div>
+          </div>
+          <div class="step green">
+            <div class="step-num green">C</div>
+            <div class="step-content">
+              <div class="step-title">גישה ל-VPS</div>
+              <div class="step-body">SSH key setup — נלמד איך להתחבר לשרת בבטחה. חשוב לדעת את זה!</div>
+            </div>
+          </div>
+        </div>
+        <div class="code-block">
+<span class="comment"># התחברות ל-VPS</span>
+ssh root@YOUR_SERVER_IP
+
+<span class="comment"># עדכון המערכת</span>
+apt update && apt upgrade -y
+        </div>
+      </div>
+    </div>
+
+    <div class="module">
+      <div class="module-header">
+        <div class="module-num green">STEP 2</div>
+        <div class="module-title">🦞 התקנת OpenClaw</div>
+      </div>
+      <div class="module-body">
+        <div class="steps">
+          <div class="step green">
+            <div class="step-num green">1</div>
+            <div class="step-content">
+              <div class="step-title">התקנת Node.js</div>
+              <div class="step-body">OpenClaw דורש Node.js 20+. מתקינים עם nvm לניהול נוח של גרסאות.</div>
+            </div>
+          </div>
+          <div class="step green">
+            <div class="step-num green">2</div>
+            <div class="step-content">
+              <div class="step-title">התקנת OpenClaw</div>
+              <div class="step-body">פקודה אחת מתקינה הכל ומריצה wizard שמנחה אותך שלב אחרי שלב.</div>
+            </div>
+          </div>
+          <div class="step green">
+            <div class="step-num green">3</div>
+            <div class="step-content">
+              <div class="step-title">חיבור ל-WhatsApp</div>
+              <div class="step-body">Wizard מציג QR code — סורקים עם הטלפון בדיוק כמו WhatsApp Web. מוכן!</div>
+            </div>
+          </div>
+          <div class="step green">
+            <div class="step-num green">4</div>
+            <div class="step-content">
+              <div class="step-title">חיבור Claude API</div>
+              <div class="step-body">מכניסים Anthropic API key (מחשבון pro/max) — OpenClaw מחובר ל-Claude ורץ 24/7.</div>
+            </div>
+          </div>
+        </div>
+        <div class="code-block">
+<span class="comment"># התקנת Node.js</span>
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+nvm install 20
+
+<span class="comment"># התקנת OpenClaw</span>
+npm install -g openclaw@latest
+openclaw onboard <span class="comment"># wizard אוטומטי</span>
+
+<span class="comment"># OpenClaw מחובר! שלח הודעה ב-WhatsApp 🦞</span>
+        </div>
+
+        <div class="info-box warn" style="margin-top: 12px;">
+          <div class="info-box-icon">⚠️</div>
+          <div class="info-box-content">
+            <strong>טיפ אבטחה חשוב</strong>
+            הגדר allowFrom עם מספר הטלפון שלך בלבד — כך רק אתה יכול לשלוח פקודות ל-OpenClaw. אל תשאיר open-to-the-world!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="module">
+      <div class="module-header">
+        <div class="module-num green">STEP 3</div>
+        <div class="module-title">📦 ייבוא Skills מ-Claude Code</div>
+      </div>
+      <div class="module-body">
+        <p style="font-size: 14px; color: var(--text-dim); margin-bottom: 16px;">
+          ה-skills שיצרת ב-Claude Code עובדים גם ב-OpenClaw! אותו מבנה SKILL.md — מעתיקים לשרת ו-OpenClaw מפעיל אותם מ-WhatsApp.
+        </p>
+        <div class="steps">
+          <div class="step green">
+            <div class="step-num green">A</div>
+            <div class="step-content">
+              <div class="step-title">ארכיטקטורת Skills ב-OpenClaw</div>
+              <div class="step-body">Skills יכולים להיות bundled (מובנים), global (לכל ה-agents) או workspace (לסביבה ספציפית).</div>
+            </div>
+          </div>
+          <div class="step green">
+            <div class="step-num green">B</div>
+            <div class="step-content">
+              <div class="step-title">העלאה לשרת</div>
+              <div class="step-body">SCP או Git — מעלים את תיקיית ה-skills שלנו ל-VPS. OpenClaw מזהה אוטומטית.</div>
+            </div>
+          </div>
+          <div class="step green">
+            <div class="step-num green">C</div>
+            <div class="step-content">
+              <div class="step-title">שימוש מ-WhatsApp</div>
+              <div class="step-body">שולחים הודעה: "תשתמש ב-skill כתיבת הצעת מחיר עבור לקוח X" — OpenClaw מריץ את ה-skill ומחזיר תוצאה.</div>
+            </div>
+          </div>
+        </div>
+        <div class="code-block">
+<span class="comment"># העלאת skills מ-Mac/PC לשרת</span>
+scp -r ~/.claude/skills root@YOUR_SERVER_IP:~/.openclaw/skills/
+
+<span class="comment"># לחלופין, דרך Git</span>
+git clone https://github.com/YOUR_REPO/my-skills ~/.openclaw/skills/
+        </div>
+      </div>
+    </div>
+
+    <div class="module">
+      <div class="module-header">
+        <div class="module-num green">STEP 4</div>
+        <div class="module-title">🤖 הקמת Sub-Agents ב-OpenClaw</div>
+      </div>
+      <div class="module-body">
+        <p style="font-size: 14px; color: var(--text-dim); margin-bottom: 16px;">
+          Sub-agents ב-OpenClaw הם agents נפרדים שפועלים בשמך — כל אחד עם workspace, skills ו-persona אחרת.
+        </p>
+        <div class="cards cards-3">
+          <div class="card green">
+            <span class="card-icon">🧑‍💼</span>
+            <div class="card-title">Agent ראשי</div>
+            <div class="card-body">מקבל הכל ממך — מנתב לאיזה agent לשלוח ומסכם תוצאות.</div>
+          </div>
+          <div class="card green">
+            <span class="card-icon">📊</span>
+            <div class="card-title">Agent נתונים</div>
+            <div class="card-body">מנתח דוחות, מחשב מכירות, מכין גרפים — שולח לך סיכום ב-WhatsApp.</div>
+          </div>
+          <div class="card green">
+            <span class="card-icon">✉️</span>
+            <div class="card-title">Agent תקשורת</div>
+            <div class="card-body">מנהל אימיילים, שולח הודעות, מזכיר לך אירועים חשובים.</div>
+          </div>
+        </div>
+        <div class="code-block" style="margin-top: 16px;">
+<span class="comment"># config.yml — הגדרת agents</span>
+agents:
+  - name: "business-manager"
+    model: "claude-opus-4-6"
+    skills: ["reports", "crm", "invoices"]
+    whatsapp: "+972XXXXXXXXX"
+    
+  - name: "content-agent"
+    model: "claude-sonnet-4-6"
+    skills: ["social-media", "copywriting"]
+    heartbeat: "every: 24h"
+        </div>
+      </div>
+    </div>
+
+    <div class="module">
+      <div class="module-header">
+        <div class="module-num green">STEP 5</div>
+        <div class="module-title">🔗 חיבור למערכות שבנינו ב-Claude Code</div>
+      </div>
+      <div class="module-body">
+        <p style="font-size: 14px; color: var(--text-dim); margin-bottom: 20px;">
+          OpenClaw יכול לתקשר עם מערכות שבנינו ב-Claude Code — API calls, webhooks, גישה לבסיסי נתונים.
+        </p>
+        <div class="cards cards-2">
+          <div class="card green">
+            <span class="card-icon">🔌</span>
+            <div class="card-title">Webhook Integration</div>
+            <div class="card-body">שולחים הודעה ב-WhatsApp → OpenClaw קורא API של המערכת שבנינו → מחזיר נתונים חיים.</div>
+          </div>
+          <div class="card green">
+            <span class="card-icon">🗄️</span>
+            <div class="card-title">גישה ל-Database</div>
+            <div class="card-body">OpenClaw מחובר ישירות ל-Supabase/Postgres — יכול לקרוא ולכתוב נתונים ב-WhatsApp.</div>
+          </div>
+          <div class="card green">
+            <span class="card-icon">📡</span>
+            <div class="card-title">MCP Servers</div>
+            <div class="card-body">חיבור ל-Google Calendar, Gmail, Notion, Monday ועוד 50+ שירותים — דרך MCP.</div>
+          </div>
+          <div class="card green">
+            <span class="card-icon">⚡</span>
+            <div class="card-title">Heartbeats</div>
+            <div class="card-body">OpenClaw שולח לך עדכונים אוטומטיים כל X שעות — "מכירות היום: ₪12,400 ✅"</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <hr class="divider">
+
+  <!-- HIGHLIGHT -->
+  <div class="highlight">
+    <h2>🎯 השיטה: מה עושים קודם?</h2>
+    <p>בתחילת הליווי — נמפה יחד 3-5 משימות שחוזרות הכי הרבה בעסק שלך. שם נתחיל. מהר יותר תחסוך זמן, מהר יותר תראה ערך אמיתי.</p>
+    <div class="pills" style="justify-content: center; margin-top: 20px;">
+      <div class="pill">הצעות מחיר</div>
+      <div class="pill">תשובות ללקוחות</div>
+      <div class="pill green">דוחות שבועיים</div>
+      <div class="pill green">תוכן שיווקי</div>
+      <div class="pill orange">ניהול משימות</div>
+      <div class="pill orange">חשבוניות</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- PART 5: CURRICULUM OVERVIEW -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-purple">📅</div>
+      <div class="section-title">
+        תוכנית הזומים — ציר הזמן
+        <small>// PROGRAM TIMELINE</small>
+      </div>
+    </div>
+
+    <div class="module">
+      <div class="module-header">
+        <div class="module-num">WEEK 1</div>
+        <div class="module-title">📦 הבסיס — Claude Code ו-Antigravity</div>
+      </div>
+      <div class="module-body">
+        <ul class="topic-list">
+          <li>התקנת Claude Code + חיבור לחשבון (Terminal + IDE)</li>
+          <li>מה זה CLAUDE.md ולמה זה קריטי לעסק שלך</li>
+          <li>התקנת Antigravity + התקנת Claude Code כתוסף</li>
+          <li>הפרויקט הראשון — בניית דף נחיתה פשוט</li>
+          <li>הבנת ה-workflow: Gemini לתכנון → Claude לביצוע</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="module">
+      <div class="module-header">
+        <div class="module-num green">WEEK 2</div>
+        <div class="module-title">🧠 Skills מותאמים לעסק שלך</div>
+      </div>
+      <div class="module-body">
+        <ul class="topic-list">
+          <li>מיפוי המשימות החוזרות ב-workflow שלך</li>
+          <li>כתיבת SKILL.md ראשון ביחד (בהתאם לצורך שלך)</li>
+          <li>בדיקה, שיפור וייעול ה-skill</li>
+          <li>בניית 2-3 skills נוספים</li>
+          <li>הבנת skills מהקהילה — איך מוצאים ומתאימים</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="module">
+      <div class="module-header">
+        <div class="module-num orange">WEEK 3</div>
+        <div class="module-title">🤖 Sub-Agents + מערכות מלאות</div>
+      </div>
+      <div class="module-body">
+        <ul class="topic-list">
+          <li>הגדרת sub-agents לצרכים שונים בעסק</li>
+          <li>הרצת agents במקביל — חיסכון בזמן אמיתי</li>
+          <li>בניית מערכת עסקית ראשונה (ניהול לקוחות / תורים / מכירות)</li>
+          <li>חיבור ל-APIs חיצוניים — Google Sheets, Notion, Monday</li>
+          <li>Deploy ראשון — אתר חי ב-Netlify תוך שעה</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="module">
+      <div class="module-header">
+        <div class="module-num purple">WEEK 4</div>
+        <div class="module-title">🦞 OpenClaw — VPS + WhatsApp</div>
+      </div>
+      <div class="module-body">
+        <ul class="topic-list">
+          <li>רכישת VPS + setup ראשוני</li>
+          <li>התקנת OpenClaw + onboarding wizard</li>
+          <li>חיבור WhatsApp + בדיקת תפקוד ראשוני</li>
+          <li>ייבוא ה-skills שיצרנו ב-Claude Code</li>
+          <li>הגדרת sub-agents ב-OpenClaw</li>
+          <li>חיבור OpenClaw למערכות שבנינו</li>
+          <li>הגדרת Heartbeats — עדכונים אוטומטיים</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="module">
+      <div class="module-header">
+        <div class="module-num">WEEK 5+</div>
+        <div class="module-title">🚀 ייעול ספציפי — ×1000 פרודוקטיביות</div>
+      </div>
+      <div class="module-body">
+        <ul class="topic-list">
+          <li>ניתוח workflow נוכחי — איפה נשרף הכי הרבה זמן?</li>
+          <li>בניית solutions מותאמים אישית לעסק שלך</li>
+          <li>אוטומציות מתקדמות + Cron jobs</li>
+          <li>שיפור skills קיימים על בסיס שימוש בפועל</li>
+          <li>תחזוקה + עדכונים שוטפים</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <hr class="divider">
+
+  <!-- WHAT TO PREPARE -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-orange">✅</div>
+      <div class="section-title">
+        מה להכין לפני הזום הראשון
+        <small>// PRE-REQUIREMENTS</small>
+      </div>
+    </div>
+
+    <div class="cards cards-2">
+      <div class="card orange">
+        <span class="card-icon">💻</span>
+        <div class="card-title">דרישות טכניות</div>
+        <div class="card-body">
+          <ul style="list-style: none; display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+            <li style="font-size: 13px; color: var(--text); display: flex; gap: 8px;"><span style="color: var(--accent-green);">✓</span> Mac / Windows / Linux</li>
+            <li style="font-size: 13px; color: var(--text); display: flex; gap: 8px;"><span style="color: var(--accent-green);">✓</span> Chrome / Edge מותקן</li>
+            <li style="font-size: 13px; color: var(--text); display: flex; gap: 8px;"><span style="color: var(--accent-green);">✓</span> גישה לטרמינל (Terminal / CMD)</li>
+            <li style="font-size: 13px; color: var(--text); display: flex; gap: 8px;"><span style="color: var(--accent-orange);">⚡</span> Node.js (נתקין ביחד)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="card orange">
+        <span class="card-icon">🔑</span>
+        <div class="card-title">חשבונות נדרשים</div>
+        <div class="card-body">
+          <ul style="list-style: none; display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+            <li style="font-size: 13px; color: var(--text); display: flex; gap: 8px;"><span style="color: var(--accent-green);">✓</span> Claude Max / Pro (anthropic.com)</li>
+            <li style="font-size: 13px; color: var(--text); display: flex; gap: 8px;"><span style="color: var(--accent-green);">✓</span> GitHub account (חינמי)</li>
+            <li style="font-size: 13px; color: var(--text); display: flex; gap: 8px;"><span style="color: var(--accent-orange);">⚡</span> Antigravity (antigravity.google)</li>
+            <li style="font-size: 13px; color: var(--text); display: flex; gap: 8px;"><span style="color: var(--accent-orange);">⚡</span> VPS (לשלב OpenClaw — נרכוש ביחד)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-box success" style="margin-top: 20px;">
+      <div class="info-box-icon">💬</div>
+      <div class="info-box-content">
+        <strong>לא צריך ניסיון בתכנות</strong>
+        הכל מותאם לבעלי עסקים — לא מפתחים. הרעיון הוא ללמד אותך לתת פקודות ב-AI בצורה חכמה, לא לכתוב קוד ידנית.
+      </div>
+    </div>
+
+  </div>
+
+</div><!-- /container -->
+
+<footer>
+  <div class="container">
+    <div class="logo">[ PIXMIND STUDIO ]</div>
+    <p>ליווי Claude Code + OpenClaw לבעלי עסקים</p>
+    <p style="margin-top: 8px; color: #3a5570;">מופעל על ידי Claude · כל הזכויות שמורות · 2026</p>
+  </div>
+</footer>
+
+</body>
+</html>
